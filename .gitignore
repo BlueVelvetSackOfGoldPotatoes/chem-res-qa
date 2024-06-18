@@ -1,3 +1,6 @@
+gpt_api.py
+api_keys/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
