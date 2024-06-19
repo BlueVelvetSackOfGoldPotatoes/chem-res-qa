@@ -1,5 +1,9 @@
 gpt_api.py
 api_keys/
+all_output/
+downloaded_dois/
+downloaded_pdfs/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
