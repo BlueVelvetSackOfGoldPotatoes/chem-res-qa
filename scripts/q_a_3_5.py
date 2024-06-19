@@ -3,12 +3,12 @@ import json
 import time
 import openai
 
-from api_keys.gpt_api import key_openai
+from api_keys import key_openai
 from openai import OpenAI
 
 client = OpenAI(api_key=key_openai)
 
-def generate_questions(text, paper_name):
+def generate_questions(text, paper_name, path_q):
     """
     Generates multiple-choice questions from a given text by dividing the text into parts and
     processing each part separately to manage token limits.
@@ -18,7 +18,7 @@ def generate_questions(text, paper_name):
     :return: A list containing all generated questions.
     """
 
-    if os.path.exists("./Q&A_jsons/" + paper_name + ".json"):
+    if os.path.exists(path_q + paper_name + ".json"):
         print(f"Questions for {paper_name} already exist. Skipping generation.")
         print("="*50)
         return False
@@ -54,7 +54,7 @@ def generate_questions(text, paper_name):
     }}
     """
     
-    output_dir = "./Q&A_jsons"
+    output_dir = "../data/Q&A_jsons"
     os.makedirs(output_dir, exist_ok=True)
 
     attempts = 0
@@ -97,8 +97,6 @@ def generate_questions(text, paper_name):
         ]
 
         try:
-            from total_cost import TOTAL_COST
-
             completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
@@ -116,12 +114,6 @@ def generate_questions(text, paper_name):
             print("Token count")
             print(completion.usage.completion_tokens + int(completion.usage.prompt_tokens))
             print("="*10)
-            total_cost_paper = (int(completion.usage.completion_tokens) * 0.0015 / 1000) + (int(completion.usage.prompt_tokens) * 0.0005 / 1000) # https://openai.com/pricing
-            print(f"Total cost for paper: {total_cost_paper}")
-            print(f"Incremented cost: {TOTAL_COST + total_cost_paper}")
-            print("="*10)
-            with open("total_cost.py", "w") as f:
-                f.write(f"TOTAL_COST = {TOTAL_COST + total_cost_paper}\n")
             
             # Check if we have 10 questions now by counting occurrences
             question_count = partial_output.count('"Question":')
@@ -186,25 +178,25 @@ def main():
     all_questions = {}
     question_counter = 0
 
-    for paper in os.listdir("./all_output"):
+    for paper in os.listdir("..data//all_output"):
         if paper.endswith(".txt"):
-            with open(os.path.join("./all_output", paper), "r") as f:
+            with open(os.path.join("../data/all_output", paper), "r") as f:
                 text = f.read()
 
             paper_name = paper[:-4]
 
-            qa = generate_questions(text, paper_name)
+            qa = generate_questions(text, paper_name, "../data/Q&A_jsons/")
 
             if qa:
                 for question in qa:
                     all_questions[f"question_{question_counter}"] = question
                     question_counter += 1
 
-    with open('all_questions.json', 'w') as file:
+    with open('../results/all_questions.json', 'w') as file:
         json.dump(all_questions, file, indent=4)
 
-    folder_path = './Q&A_jsons'
-    output_file = 'all_questions.json'
+    folder_path = '../data/Q&A_jsons'
+    output_file = '../results/all_questions.json'
     merge_and_reindex_questions(folder_path, output_file)
 
 if __name__ == "__main__":

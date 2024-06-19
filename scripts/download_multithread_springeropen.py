@@ -9,15 +9,14 @@ import csv
 import re
 import subprocess
 from typing import List, Tuple, Optional
-from api_keys.gpt_api import key_openai
-from total_cost import TOTAL_COST
+from api_keys import key_openai
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 
 vpn_locations: List[str] = ['Berlin', 'Germany', 'Munich', 'France', 'Frankfurt', 'Italy', 'Paris', 'Spain', 'Marseille', 'Lyon', 'Rome', 'Milan', 'Naples', 'Amsterdam', 'Rotterdam', 'The Hague', 'Stockholm', 'Gothenburg', 'Malmo', 'Oslo', 'Bergen', 'Trondheim', 'Copenhagen', 'Aarhus', 'Odense', 'Helsinki', 'Espoo', 'Tampere', 'Warsaw', 'Krakow', 'Lodz', 'Vienna', 'Graz', 'Linz', 'Brussels', 'Antwerp', 'Ghent', 'Zurich', 'Geneva', 'Basel', 'Lisbon', 'Porto', 'Braga', 'Athens', 'Thessaloniki', 'Patras', 'Budapest', 'Debrecen', 'Szeged', 'Prague', 'Brno', 'Ostrava', 'Dublin', 'Cork', 'Limerick', 'London', 'Manchester', 'Birmingham']
 
-OUTPUT_FOLDER: str = "./all_output"
-CSV_PATH: str = "./downloaded_articles.csv"
+OUTPUT_FOLDER: str = "../data/all_output"
+CSV_PATH: str = "../data/downloaded_articles.csv"
 
 client = openai.OpenAI(
   api_key=key_openai,
@@ -136,14 +135,6 @@ def process_pdf(text: str, filename: str) -> str:
         print("Token count")
         print(completion.usage.completion_tokens + int(completion.usage.prompt_tokens))
         print("="*10)
-        total_cost_paper = (int(completion.usage.completion_tokens) * 0.0015 / 1000) + (int(completion.usage.prompt_tokens) * 0.0005 / 1000) # https://openai.com/pricing
-        print(f"Total cost for paper: {total_cost_paper}")
-        print(f"Incremented cost: {TOTAL_COST + total_cost_paper}")
-        print("="*10)
-
-        with open("total_cost.py", "w") as f:
-            f.write(f"TOTAL_COST = {repr(TOTAL_COST + total_cost_paper)}\n")
-
         print(last_response)
 
         try:
@@ -154,7 +145,7 @@ def process_pdf(text: str, filename: str) -> str:
         
         print(parsed_response)
         # Save structured information into a JSON file
-        json_output_path = "./all_output/" + doi + ".json"
+        json_output_path = "../data/all_output/" + doi + ".json"
         
         with open(json_output_path, "w", encoding="utf-8") as json_file:
             json.dump(parsed_response, json_file, indent=4)

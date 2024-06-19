@@ -2,15 +2,15 @@ import os
 import openai
 import json
 
-from api_keys.gpt_api import key_openai
+from api_keys import key_openai
 from openai import OpenAI
 
 client = OpenAI(api_key=key_openai)
 
-output_dir = "./GPT4_Answers"
+output_dir = "../results/GPT4_Answers"
 os.makedirs(output_dir, exist_ok=True)
 
-with open("all_questions_gpt_4.json", "r") as f:
+with open("../data/all_questions_gpt_4.json", "r") as f:
     dataset = json.load(f)
 
 def evaluate_questions_with_gpt4(questions, output_filename):
@@ -59,7 +59,7 @@ def evaluate_questions_with_gpt4(questions, output_filename):
     return correct_count, len(questions)
 
 def main():
-    evaluate_questions_with_gpt4(dataset, "gpt4_evaluation_results.json")
+    evaluate_questions_with_gpt4(dataset, "../data/gpt4_evaluation_results.json")
 
 if __name__ == '__main__':
     main()

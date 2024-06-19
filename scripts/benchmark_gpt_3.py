@@ -2,15 +2,15 @@ import os
 import json
 import openai
 
-from api_keys.gpt_api import key_openai
+from api_keys import key_openai
 from openai import OpenAI
 
 client = OpenAI(api_key=key_openai)
 
-output_dir = "./GPT35_Answers"
+output_dir = "../results/GPT35_Answers"
 os.makedirs(output_dir, exist_ok=True)
 
-with open("all_questions_gpt_4.json", "r") as f:
+with open("../data/all_questions_gpt_4.json", "r") as f:
     dataset = json.load(f)
 
 def evaluate_questions_with_gpt35(questions, output_filename):

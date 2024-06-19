@@ -3,7 +3,7 @@ import json
 import time
 import openai
 
-from api_keys.gpt_api import key_openai
+from api_keys import key_openai
 from openai import OpenAI
 
 client = OpenAI(api_key=key_openai)
@@ -21,7 +21,7 @@ def save_total_cost(total_cost):
     with open("total_cost_4_gpt.py", "w") as f:
         f.write(f"TOTAL_COST = {total_cost}\n")
 
-def generate_questions(text, paper_name):
+def generate_questions(text, paper_name, path_q):
     """
     Generates multiple-choice questions from a given text by dividing the text into parts and
     processing each part separately to manage token limits.
@@ -31,7 +31,7 @@ def generate_questions(text, paper_name):
     :return: A list containing all generated questions.
     """
 
-    if os.path.exists("./Q&A_jsons_gpt_4/" + paper_name + ".json"):
+    if os.path.exists(path_q + paper_name + ".json"):
         print(f"Questions for {paper_name} already exist. Skipping generation.")
         print("="*50)
         return False
@@ -70,7 +70,7 @@ def generate_questions(text, paper_name):
     Only produce questions in the context of Organic Chemistry.
     """
     
-    output_dir = "./Q&A_jsons_gpt_4"
+    output_dir = "../data/Q&A_jsons_gpt_4"
     os.makedirs(output_dir, exist_ok=True)
 
     attempts = 0
@@ -203,25 +203,25 @@ def main():
     all_questions = {}
     question_counter = 0
 
-    for paper in os.listdir("./all_output"):
+    for paper in os.listdir("../data/all_output"):
         if paper.endswith(".txt"):
-            with open(os.path.join("./all_output", paper), "r") as f:
+            with open(os.path.join("../data/all_output", paper), "r") as f:
                 text = f.read()
 
             paper_name = paper[:-4]
 
-            qa = generate_questions(text, paper_name)
+            qa = generate_questions(text, paper_name, "../data/Q&A_jsons_gpt_4/")
 
             if qa:
                 for question in qa:
                     all_questions[f"question_{question_counter}"] = question
                     question_counter += 1
 
-    with open('all_questions_gpt_4.json', 'w') as file:
+    with open('../data/all_questions_gpt_4.json', 'w') as file:
         json.dump(all_questions, file, indent=4)
 
-    folder_path = './Q&A_jsons_gpt_4'
-    output_file = 'all_questions_gpt_4.json'
+    folder_path = '../data/Q&A_jsons_gpt_4'
+    output_file = '../data/all_questions_gpt_4.json'
     merge_and_reindex_questions(folder_path, output_file)
 
 if __name__ == "__main__":
