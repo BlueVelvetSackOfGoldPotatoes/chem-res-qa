@@ -1,5 +1,6 @@
 gpt_api.py
 api_keys/
+api_keys.py
 all_output/
 downloaded_dois/
 downloaded_pdfs/
