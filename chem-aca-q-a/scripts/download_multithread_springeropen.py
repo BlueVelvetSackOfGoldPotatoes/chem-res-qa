@@ -1,11 +1,10 @@
 import traceback
 import os
 import csv
-from publishers_links import publishers_links
+from .publishers_links import publishers_links
 
 OUTPUT_FOLDER: str = "../data/all_output"
 CSV_PATH: str = "../data/downloaded_articles.csv"
-
 
 def main():
     """Main function to initiate scraping and downloading of open access papers."""

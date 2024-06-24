@@ -6,13 +6,13 @@ import os
 import csv
 import re
 import subprocess
-import openai
+from openai import OpenAI
 
 from typing import Optional
 
-from api_keys import key_openai
+from api_keys.api_keys import key_openai
 
-client = openai.OpenAI(
+client = OpenAI(
   api_key=key_openai,
 )
 

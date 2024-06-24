@@ -1,9 +1,8 @@
 import os
 import json
-import time
 import openai
 
-from api_keys import key_openai
+from api_keys.api_keys import key_openai
 from openai import OpenAI
 
 client = OpenAI(api_key=key_openai)

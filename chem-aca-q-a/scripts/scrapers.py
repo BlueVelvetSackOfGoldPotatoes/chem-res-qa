@@ -4,7 +4,7 @@ from typing import Tuple, Optional
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 
-from pdf_utils import download_pdf
+from .pdf_utils import download_pdf
 
 def scrape_page_articles_springer(url: str, output_folder: str, csv_path: str, journal_name: str, vpn_index: int) -> Tuple[Optional[str], int, int]:
     """Scrape articles from a webpage and download PDFs.
