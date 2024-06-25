@@ -5,14 +5,17 @@ import numpy as np
 import csv
 from transformers import pipeline
 from tqdm import tqdm
+import torch
+
+device = 0 if torch.cuda.is_available() else -1
 
 model_types = {
     "question-answering": [
-        "deepset/roberta-base-squad2",
-        "deepset/bert-large-uncased-whole-word-masking-squad2",
-        "distilbert/distilbert-base-cased-distilled-squad",
-        "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
-        "monologg/koelectra-small-v2-distilled-korquad-384",
+        # "deepset/roberta-base-squad2",
+        # "deepset/bert-large-uncased-whole-word-masking-squad2",
+        # "distilbert/distilbert-base-cased-distilled-squad",
+        # "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
+        # "monologg/koelectra-small-v2-distilled-korquad-384",
         "valhalla/bart-large-finetuned-squadv1",
         "trod/electra_large_discriminator_squad2_512",
         "distilbert/distilbert-base-uncased-distilled-squad",
@@ -46,7 +49,7 @@ model_types = {
 }
 
 def evaluate_model(model_name, modality, questions):
-    classifier = pipeline(modality, model=model_name)
+    classifier = pipeline(modality, model=model_name, device=device)
     results = []
     correct_count = 0
     wrong_count = 0
@@ -98,28 +101,34 @@ def main():
 
     overall_stats = {}
     os.makedirs('./results/HuggingFace', exist_ok=True)
+    unavailable_models_file = "./results/HuggingFace/unavailable_models.txt"
 
     for modality, models in model_types.items():
         modality_results = []
         for model_name in tqdm(models, desc=f"Evaluating models for {modality}"):
-            print(f"Evaluating {model_name} with modality {modality}")
-            correct_count, wrong_count, unparsable_count, results = evaluate_model(model_name, modality, dataset)
-            modality_results.append({
-                'model_name': model_name,
-                'correct': correct_count,
-                'wrong': wrong_count,
-                'unparsable': unparsable_count
-            })
+            try:
+                print(f"Evaluating {model_name} with modality {modality}")
+                correct_count, wrong_count, unparsable_count, results = evaluate_model(model_name, modality, dataset)
+                modality_results.append({
+                    'model_name': model_name,
+                    'correct': correct_count,
+                    'wrong': wrong_count,
+                    'unparsable': unparsable_count
+                })
 
-            # Save individual model results to CSV
-            csv_filename = f"./results/HuggingFace/{model_name.replace('/', '_')}_results.csv"
-            with open(csv_filename, 'w', newline='') as csvfile:
-                fieldnames = ['question_id', 'prompt', 'generated_answer', 'is_correct', 'is_unparsable']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                # Save individual model results to CSV
+                csv_filename = f"./results/HuggingFace/{model_name.replace('/', '_')}_results.csv"
+                with open(csv_filename, 'w', newline='') as csvfile:
+                    fieldnames = ['question_id', 'prompt', 'generated_answer', 'is_correct', 'is_unparsable']
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-                writer.writeheader()
-                for result in results:
-                    writer.writerow(result)
+                    writer.writeheader()
+                    for result in results:
+                        writer.writerow(result)
+            except Exception as e:
+                print(f"Failed to evaluate model {model_name} due to: {e}")
+                with open(unavailable_models_file, "a") as log_file:
+                    log_file.write(f"{model_name} could not be loaded.\n")
 
         overall_stats[modality] = modality_results
 
