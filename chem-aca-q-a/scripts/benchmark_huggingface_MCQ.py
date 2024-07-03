@@ -7,15 +7,25 @@ from transformers import pipeline
 from tqdm import tqdm
 import torch
 
-device = 0 if torch.cuda.is_available() else -1
+"""TODO
+- We need to save the model's answer.
+- Read how they are parsing their answers / how they query the models with multiple choice questions.
+- Look into how bigbench is handeling multiple choice questions.
+- Make a google form for catalysis with a sample of questions (different questions per person - do a python program that evalutes answers - does this question make sense? - Yes / No) - Flask application self hosted and let people answer (random questions)
+- For every question just ask if it is true or false - this might make it parsable.
+"""
 
+device = 0 if torch.cuda.is_available() else -1
+#  Top 10 downloaded models from HuggingFace
+# Physics Benchmark - what models did they use?
+# Perple
 model_types = {
     "question-answering": [
-        # "deepset/roberta-base-squad2",
-        # "deepset/bert-large-uncased-whole-word-masking-squad2",
-        # "distilbert/distilbert-base-cased-distilled-squad",
-        # "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
-        # "monologg/koelectra-small-v2-distilled-korquad-384",
+        "deepset/roberta-base-squad2",
+        "deepset/bert-large-uncased-whole-word-masking-squad2",
+        "distilbert/distilbert-base-cased-distilled-squad",
+        "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
+        "monologg/koelectra-small-v2-distilled-korquad-384",
         "valhalla/bart-large-finetuned-squadv1",
         "trod/electra_large_discriminator_squad2_512",
         "distilbert/distilbert-base-uncased-distilled-squad",
