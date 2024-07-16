@@ -200,5 +200,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# gpt-3.5 : We have 4581 questions, exactly 463 papers.

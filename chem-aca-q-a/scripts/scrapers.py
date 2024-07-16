@@ -65,7 +65,6 @@ def scrape_page_articles_rsc(url: str, output_folder: str, csv_path: str, journa
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
             for link in pdf_links:
-                # Construct the full URL for the PDF download link
                 pdf_url = url + link['href']
                 futures.append(executor.submit(download_pdf, url, output_folder, csv_path, journal_name, pdf_url))
 
@@ -74,7 +73,6 @@ def scrape_page_articles_rsc(url: str, output_folder: str, csv_path: str, journa
                     count += 1
 
         if next_page_btn and next_page_btn.has_attr('data-pageno'):
-            # Assuming the base URL remains constant, adjust the method to increment page numbers or change URL as needed
             next_page_no = next_page_btn['data-pageno']
             next_page_url = f"{url.split('#')[0]}#!recentarticles&adv&page={next_page_no}"
             return next_page_url, count, vpn_index
@@ -113,7 +111,6 @@ def scrape_page_articles_acs(url: str, output_folder: str, csv_path:str, journal
                     pdf_link_element = article.find('a', title="PDF")
                     if pdf_link_element:
                         pdf_page_url = base_url + pdf_link_element['href']
-                        # Navigate to the PDF page to find the actual PDF download link
                         pdf_page = requests.get(pdf_page_url)
                         if pdf_page.status_code == 200:
                             pdf_soup = BeautifulSoup(pdf_page.content, 'html.parser')
@@ -200,11 +197,9 @@ def scrape_page_articles_peerj(url: str, output_folder: str, csv_path: str, jour
                 if result:
                     count += 1
 
-        # Identify the button for the next page and construct its URL
         next_page_button = soup.find('button', {'aria-label': 'Next page'})
         if next_page_button:
-            # This assumes the next page URL needs to be extracted or constructed similarly
-            next_page_url = None  # Adjust this logic to extract or construct the next page URL
+            next_page_url = None
             return next_page_url, count, vpn_index
         else:
             return None, count, vpn_index

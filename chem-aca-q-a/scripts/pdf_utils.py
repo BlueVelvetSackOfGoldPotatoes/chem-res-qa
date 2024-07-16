@@ -110,7 +110,7 @@ def process_pdf(text: str, filename: str, csv_path:str) -> str:
         for row in reader:
             if row['DOI'] == doi:
                 print(f"DOI {doi} already exists in CSV.")
-                return doi  # Or an appropriate message
+                return doi
 
     initial_prompt = f"""Given the following text, extract structured information in JSON format including the title, abstract, authors, keywords, institute of origin, DOI, and funding:
         
@@ -164,7 +164,6 @@ def process_pdf(text: str, filename: str, csv_path:str) -> str:
             return "Error in JSON decoding"
         
         print(parsed_response)
-        # Save structured information into a JSON file
         json_output_path = "../data/all_output/" + doi + ".json"
         
         with open(json_output_path, "w", encoding="utf-8") as json_file:

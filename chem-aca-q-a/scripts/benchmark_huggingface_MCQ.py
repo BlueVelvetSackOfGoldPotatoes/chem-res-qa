@@ -16,9 +16,6 @@ import torch
 """
 
 device = 0 if torch.cuda.is_available() else -1
-#  Top 10 downloaded models from HuggingFace
-# Physics Benchmark - what models did they use?
-# Perple
 model_types = {
     "question-answering": [
         "deepset/roberta-base-squad2",
@@ -45,10 +42,18 @@ model_types = {
         "MoritzLaurer/deberta-v3-base-zeroshot-v1.1-all-33"
     ],
     "text-generation": [
-        "openai-community/gpt2",
+        "CHE-72-ZLab/Alibaba-Qwen2-7B-Instruct-GGUF",
+        "TheBloke/Mistral-7B-Claude-Chat-GGUF",
+        "TheBloke/Llama-2-70B-Chat-GGUF",
+        "TheBloke/WizardLM-1.0-Uncensored-CodeLlama-34B-GGUF",
+        "TheBloke/Wizard-Vicuna-7B-Uncensored-GPTQ",
+        "TheBloke/Wizard-Vicuna-13B-Uncensored-GPTQ",
+        "mistralai/Mistral-7B-Instruct-v0.2",
+        "google/gemma-2-9b",
+        "google/gemma-2-27b",
         "facebook/opt-125m",
-        "distilbert/distilgpt2",
         "meta-llama/Meta-Llama-3-8B-Instruct",
+        "meta-llama/Llama-2-13b-chat-hf",
         "Qwen/Qwen-VL-Chat",
         "petals-team/StableBeluga2",
         "tiiuae/falcon-7b-instruct",
@@ -76,13 +81,23 @@ def evaluate_model(model_name, modality, questions):
                     if modality == "question-answering":
                         result = classifier(question=prompt, context=" ".join(choices))
                         generated_answer = max(choices, key=lambda choice: result['answer'] in choice)
+                    
                     elif modality == "zero-shot-classification":
-                        result = classifier(prompt, candidate_labels=choices, hypothesis_template="This answer is {}.")
-                        generated_answer = result['labels'][0]
+                        result = classifier(prompt,
+                            candidate_labels=choices,
+                        )
+                        max_score_index = result['scores'].index(max(result['scores']))
+                        generated_answer = ['A', 'B', 'C', 'D'][max_score_index]
+
                     elif modality == "text-generation":
-                        completion_prompt = f"{prompt} From A, B, C, and D, my answer is option:"
-                        generated_text = classifier(completion_prompt, max_length=60)[0]['generated_text']
-                        generated_answer = generated_text.split("option:")[1].strip().upper()
+                        options = ['A', 'B', 'C', 'D']
+                        completion_prompt = prompt + "".join([f"{options[i]}) {choices[i]}\n" for i in range(len(options))])
+
+                        max_choice_length = max(len(choice) for choice in choices)
+                        max_length = max_choice_length + 10
+
+                        result = classifier(completion_prompt, max_length=max_length, num_return_sequences=1)
+                        generated_answer = result[0]['generated_text'][0]
 
                     if generated_answer not in ['A', 'B', 'C', 'D']:
                         generated_answer = 'Unparsable'
